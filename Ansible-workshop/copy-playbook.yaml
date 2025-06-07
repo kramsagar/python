@@ -1,0 +1,89 @@
+[ramsk@server codebase]$ cat copy-playbook.yaml
+---
+- name: copy to local play
+  hosts: local
+  become: yes
+  become_user: root
+  tasks:
+    - name: copy task to local server
+      copy:
+        src: index.html
+        dest: ~/index.html
+        group: root
+        owner: root
+        mode: '777'
+
+[ramsk@server codebase]$
+#Add become: yes and become_user: root at the play level, and run your playbook with the --ask-become-pass (or -K) option so Ansible will prompt you for the sudo password.
+#the user part of hosts should be partof visudoers file
+
+[ramsk@server codebase]$ ansible-playbook -i hosts.ini copy-playbook.yaml --ask-become-pass
+BECOME password:
+
+PLAY [copy to local play] ********************************************************************************************************
+
+TASK [Gathering Facts] ***********************************************************************************************************
+ok: [rkyasan44@192.168.1.9]
+ok: [ramsagar@192.168.1.7]
+
+TASK [copy task to local server] *************************************************************************************************
+ok: [rkyasan44@192.168.1.9]
+ok: [ramsagar@192.168.1.7]
+
+PLAY RECAP ***********************************************************************************************************************
+ramsagar@192.168.1.7       : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+rkyasan44@192.168.1.9      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+
+
+[ramsk@server codebase]$ cat copy-playbook.yaml
+---
+- name: copy to local play
+  hosts: local
+  tasks:
+    - name: copy task to local server
+      copy:
+        src: index.html
+        dest: ~/index1.html
+        mode: '777'
+
+    - name: display content of dest file
+      shell: |
+        cat ~/index1.html
+        hostname
+        ls -ltr ~/index1.html
+      register: shell_output
+
+    - name: show shell output
+      debug:
+        var: shell_output.stdout
+[ramsk@server codebase]$
+
+[ramsk@server codebase]$ ansible-playbook -i hosts.ini copy-playbook.yaml
+
+PLAY [copy to local play] ********************************************************************************************************
+
+TASK [Gathering Facts] ***********************************************************************************************************
+ok: [rkyasan44@192.168.1.9]
+ok: [ramsagar@192.168.1.7]
+
+TASK [copy task to local server] *************************************************************************************************
+ok: [rkyasan44@192.168.1.9]
+ok: [ramsagar@192.168.1.7]
+
+TASK [display content of dest file] **********************************************************************************************
+changed: [rkyasan44@192.168.1.9]
+changed: [ramsagar@192.168.1.7]
+
+TASK [show shell output] *********************************************************************************************************
+ok: [ramsagar@192.168.1.7] => {
+    "shell_output.stdout": "<html>\n<h1> this is ram default page<h1>\n</html>\nclient\n-rwxrwxrwx. 1 ramsagar ramsagar 49 Jun  7 15:25 /home/ramsagar/index1.html"
+}
+ok: [rkyasan44@192.168.1.9] => {
+    "shell_output.stdout": "<html>\n<h1> this is ram default page<h1>\n</html>\nlocalhost.localdomain\n-rwxrwxrwx. 1 rkyasan44 rkyasan44 49 Jun  7 15:25 /home/rkyasan44/index1.html"
+}
+
+PLAY RECAP ***********************************************************************************************************************
+ramsagar@192.168.1.7       : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+rkyasan44@192.168.1.9      : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+

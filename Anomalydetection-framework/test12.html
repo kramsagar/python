@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anomaly & Forecasting Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="bg-white text-gray-800 font-sans min-h-screen p-6">
+
+  <!-- Header -->
+  <header class="text-center mb-10">
+    <h1 class="text-3xl font-bold text-blue-800 flex justify-center items-center gap-3">
+      <i class="fa-solid fa-brain text-blue-700"></i>
+      AI-Driven Anomaly & Forecasting Dashboard
+    </h1>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- Input Section -->
+    <section class="bg-white border rounded-2xl shadow-lg p-6 space-y-6">
+      <h2 class="text-xl font-semibold text-blue-700">Model Configuration</h2>
+
+      <!-- Model Type -->
+      <div class="border-b pb-4">
+        <label for="model-type" class="block text-blue-700 font-medium mb-2">Analysis Type</label>
+        <select id="model-type" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option value="">Select</option>
+          <option value="anomaly">Anomaly Detection</option>
+          <option value="forecast">Forecasting</option>
+        </select>
+      </div>
+
+      <!-- Metric Source -->
+      <div>
+        <label class="block text-blue-700 font-medium mb-2">Metric Data Source</label>
+        <input type="text" placeholder="API Endpoint or Panel ID" class="w-full mb-2 px-4 py-2 border rounded focus:ring-2 focus:ring-blue-300" />
+        <input type="text" placeholder="Time Series Query (Optional)" class="w-full mb-3 px-4 py-2 border rounded focus:ring-2 focus:ring-blue-300" />
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+          Load Metric
+        </button>
+      </div>
+    </section>
+
+    <!-- Settings Section -->
+    <section class="bg-white border rounded-2xl shadow-lg p-6 space-y-4">
+      <h2 class="text-xl font-semibold text-blue-700">Model Settings</h2>
+
+      <label for="model" class="block text-blue-700 font-medium">Select Model</label>
+      <select id="model" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <option>Prophet</option>
+        <option>ARIMA</option>
+        <option>Isolation Forest</option>
+        <option>LSTM</option>
+      </select>
+
+      <label class="block text-blue-700 font-medium mt-4">Prediction Interval (Minutes)</label>
+      <input type="number" min="1" placeholder="e.g. 30" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+
+      <label class="block text-blue-700 font-medium mt-4">Model Parameters</label>
+      <textarea rows="4" placeholder='e.g. {"confidence":0.95}' class="w-full border rounded px-4 py-2 focus:ring-2 focus:ring-blue-300"></textarea>
+    </section>
+
+    <!-- Output Panel -->
+    <section class="bg-white border rounded-2xl shadow-lg p-6 space-y-4">
+      <h2 class="text-xl font-semibold text-blue-700">Result & Graph</h2>
+      <div class="w-full h-64 border rounded bg-gray-100 flex items-center justify-center text-gray-500">
+        Prediction/Anomaly Graph Here
+      </div>
+      <div class="space-y-2">
+        <label class="block text-blue-700 font-medium">Summary Output</label>
+        <textarea rows="3" readonly class="w-full border rounded px-4 py-2 bg-gray-50 text-gray-700"></textarea>
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+          Run Analysis
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+</body>
+</html>

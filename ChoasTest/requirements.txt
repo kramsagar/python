@@ -1,0 +1,3 @@
+pip install flask
+pip install -U chaostoolkit
+#chaos init experiment 

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anomaly & Forecasting Framework</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, #e0f7fa, #f1f8ff);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      padding: 40px;
+      width: 100%; /* Remove max-width to make it full width */
+      margin: 0; /* Remove margin */
+    }
+
+    .header {
+      background: linear-gradient(90deg, #1e3c72, #2a5298);
+      color: white;
+      padding: 30px 40px;
+      font-size: 34px;
+      font-weight: 600;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      margin-bottom: 40px;
+    }
+
+    .sections-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* Adjust to have three equal-width columns */
+      gap: 30px;
+      justify-items: stretch; /* Ensure full width for sections */
+      margin-top: 20px;
+      padding: 0 20px; /* Add some padding for inner spacing */
+    }
+
+    .section {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .section:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .section h2 {
+      font-size: 22px;
+      border-bottom: 2px solid #1976d2;
+      padding-bottom: 8px;
+      margin-bottom: 25px;
+      color: #1a237e;
+    }
+
+    label {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    input[type="text"],
+    select,
+    .date-picker {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #cfd8dc;
+      margin-bottom: 18px;
+      font-size: 16px;
+      background: #f9f9f9;
+      transition: border 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    select:focus,
+    .date-picker:focus {
+      border-color: #1976d2;
+      outline: none;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      margin-right: 8px;
+    }
+
+    .metric-group {
+      padding: 10px;
+      background: #f0f7ff;
+      border-radius: 10px;
+      border: 1px dashed #90caf9;
+      margin-bottom: 10px;
+    }
+
+    #customDateRange {
+      display: none;
+    }
+
+    canvas {
+      background: #ffffff;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .modelName {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a237e;
+      margin-top: 20px;
+    }
+
+    @media screen and (max-width: 900px) {
+      .sections-container {
+        grid-template-columns: 1fr; /* Stack panels on small screens */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">✨ Anomaly & Forecasting Framework for TSDB</div>
+
+    <div class="sections-container">
+      <!-- Analysis Section -->
+      <div class="section">
+        <h2>Analysis</h2>
+        <label for="analysisType">Method:</label>
+        <select id="analysisType">
+          <option value="anomaly">Anomaly</option>
+          <option value="forecast">Forecast</option>
+        </select>
+
+        <label for="appId">App ID:</label>
+        <input type="text" id="appId" />
+
+        <label for="timeRange">Time Range:</label>
+        <select id="timeRange">
+          <option value="24hr">Last 24 Hours</option>
+          <option value="3days">Last 3 Days</option>
+          <option value="custom">Custom Range</option>
+        </select>
+
+        <div id="customDateRange">
+          <label for="startDate">From:</label>
+          <input type="text" id="startDate" class="date-picker" />
+          <label for="endDate">To:</label>
+          <input type="text" id="endDate" class="date-picker" />
+        </div>
+
+        <label>Data Sources:</label>
+        <div>
+          <input type="checkbox" name="source" value="splunk" /> Splunk
+          <input type="checkbox" name="source" value="appd" /> AppD
+          <input type="checkbox" name="source" value="elastic" /> Elastic
+          <input type="checkbox" name="source" value="prometheus" /> Prometheus
+          <input type="checkbox" name="source" value="grafana" /> Grafana
+          <input type="checkbox" name="source" value="autosys" /> Autosys
+        </div>
+      </div>
+
+      <!-- Metrics Section -->
+      <div class="section">
+        <h2>Metrics</h2>
+        <div id="metricsContainer"></div>
+      </div>
+
+      <!-- Model Section -->
+      <div class="section">
+        <h2>Model</h2>
+        <div id="modeSection" style="display: none">
+          <label for="modeSelect">Select Mode:</label>
+          <select id="modeSelect">
+            <option value="model1">Model 1</option>
+            <option value="model2">Model 2</option>
+          </select>
+        </div>
+        <canvas id="chartCanvas" width="600" height="400"></canvas>
+        <div class="modelName" id="modelName"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+    $(function () {
+      $("#startDate, #endDate").datepicker({
+        dateFormat: "yy-mm-dd",
+        onSelect: function () {
+          const date = $(this).val();
+          const currentTime = new Date().toLocaleTimeString();
+          $(this).val(date + ' ' + currentTime);
+        }
+      });
+    });
+
+    document.getElementById('timeRange').addEventListener('change', function () {
+      document.getElementById('customDateRange').style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+
+    const metricMap = {
+      splunk: ['Latency', 'Volume', 'Error Rate'],
+      appd: ['Latency', 'Volume', 'Error Rate'],
+      elastic: ['Latency', 'Volume', 'Error Rate'],
+      prometheus: ['CPU', 'Memory', 'Disk'],
+      autosys: [
+        'Unexpected Job Failures',
+        'Job Not Started on Schedule',
+        'Job Runs Longer Than Expected',
+        'Job Runs Too Quickly',
+        'Job Dependency Violations',
+        'High Retries/Restarts',
+        'Resource Utilization Anomalies'
+      ]
+    };
+
+    const sourceCheckboxes = document.querySelectorAll("input[name='source']");
+    const metricsContainer = document.getElementById('metricsContainer');
+    const modelNameElement = document.getElementById('modelName');
+
+    sourceCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        metricsContainer.innerHTML = '';
+        sourceCheckboxes.forEach(box => {
+          if (box.checked) {
+            const metrics = metricMap[box.value] || [];
+            metrics.forEach(metric => {
+              const id = `${box.value}_${metric}`.replace(/\s+/g, '_');
+              const groupHTML = ` 
+                <div class="metric-group">
+                  <label><strong>Primary:</strong> <input type='radio' name='primary' value='${id}' data-label='${metric} (${box.value})' /> ${metric} (${box.value})</label><br/>
+                  <label><strong>Supporting:</strong> <input type='checkbox' name='supporting' value='${id}' /> Use as Supporting</label>
+                </div>`; 
+              metricsContainer.innerHTML += groupHTML;
+            });
+          }
+        });
+      });
+    });
+
+    metricsContainer.addEventListener('change', () => {
+      const primaryMetric = document.querySelector("input[name='primary']:checked");
+      const selectedDate = document.getElementById("startDate").value || "No Date"; 
+
+      const selectedSecondaryMetrics = Array.from(
+        document.querySelectorAll("input[name='supporting']:checked")
+      ).map(input => input.value);
+
+      // Build the model name
+      if (primaryMetric) {
+        let modelName = `${selectedDate}-${primaryMetric.dataset.label}`;
+
+        if (selectedSecondaryMetrics.length > 0) {
+          modelName += '-' + selectedSecondaryMetrics
+            .map(id => {
+              const label = document.querySelector(`input[value="${id}"]`).parentElement.querySelector('label').innerText.split(":")[1].trim();
+              return `${label}`;
+            })
+            .join('-');
+        }
+
+        modelNameElement.textContent = `Generated Model Name: ${modelName}`; // Display the generated model name
+        console.log("Generated Model Name: ", modelName);
+      }
+
+      // Placeholder chart rendering logic for testing
+      const ctx = document.getElementById('chartCanvas').getContext('2d');
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['January', 'February', 'March', 'April', 'May'],
+          datasets: [{
+            label: 'Sample Dataset',
+            data: [65, 59, 80, 81, 56],
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }]
+        }
+      });
+    });
+  </script>
+</body>
+</html>

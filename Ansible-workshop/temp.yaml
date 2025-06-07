@@ -1,0 +1,31 @@
+name: ramsagar
+language:
+  - telugu
+  - english
+address:
+  city: hyderabad
+  state: telangana
+  country: india
+  pincode: 500062
+kids:
+  - name: joshnika
+    age:10
+  - name: giyansh
+    age: 5
+
+
+#corresponding python code to read the above yaml file
+data = {
+    "name": "ramsagar",
+    "language": ["telugu", "english"],
+    "address": {
+        "city": "hyderabad",
+        "state": "telangana",
+        "country": "india",
+        "pincode": 500062
+    },
+    "kids": [
+        {"name": "joshnika", "age": 10},
+        {"name": "giyansh", "age": 5}
+    ]
+}

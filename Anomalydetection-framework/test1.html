@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anomaly and Forecasting Framework for TSDB</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      padding: 20px;
+    }
+    .sidebar, .metrics, .chart-section {
+      padding: 10px;
+    }
+    .sidebar {
+      width: 20%;
+    }
+    .metrics {
+      width: 20%;
+    }
+    .chart-section {
+      width: 60%;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Analysis</h2>
+    <div class="section">
+      <label for="analysisType">Method:</label>
+      <select id="analysisType">
+        <option value="anomaly">Anomaly</option>
+        <option value="forecast">Forecast</option>
+      </select>
+    </div>
+    <div class="section">
+      <label for="appId">App ID:</label><br />
+      <input type="text" id="appId" />
+    </div>
+    <div class="section">
+      <label for="timeRange">Time Range:</label><br />
+      <select id="timeRange">
+        <option value="24hr">Last 24 Hours</option>
+        <option value="3days">Last 3 Days</option>
+        <option value="custom">Custom Range</option>
+      </select>
+    </div>
+    <div class="section">
+      <label>Data Sources:</label><br />
+      <input type="checkbox" name="source" value="splunk" /> Splunk<br />
+      <input type="checkbox" name="source" value="appd" /> AppD<br />
+      <input type="checkbox" name="source" value="elastic" /> Elastic<br />
+      <input type="checkbox" name="source" value="prometheus" /> Prometheus<br />
+      <input type="checkbox" name="source" value="grafana" /> Grafana<br />
+      <input type="checkbox" name="source" value="autosys" /> Autosys<br />
+    </div>
+  </div>
+
+  <div class="metrics">
+    <h2>Metrics</h2>
+    <div id="metricsContainer"></div>
+  </div>
+
+  <div class="chart-section">
+    <h2>Graph</h2>
+    <div id="modeSection" class="section" style="display:none">
+      <label for="modeSelect">Select Mode:</label>
+      <select id="modeSelect">
+        <option value="model1">Model 1</option>
+        <option value="model2">Model 2</option>
+      </select>
+    </div>
+    <canvas id="chartCanvas" width="600" height="400"></canvas>
+  </div>
+
+  <script>
+    const metricMap = {
+      splunk: ['Latency', 'Volume', 'Error Rate'],
+      appd: ['Latency', 'Volume', 'Error Rate'],
+      elastic: ['Latency', 'Volume', 'Error Rate'],
+      prometheus: ['CPU', 'Memory', 'Disk'],
+      autosys: [
+        'Unexpected Job Failures',
+        'Job Not Started on Schedule',
+        'Job Runs Longer Than Expected',
+        'Job Runs Too Quickly (skipped tasks)',
+        'Job Dependency Violations',
+        'High Frequency of Retries/Restarts',
+        'Resource Utilization Anomalies'
+      ]
+    };
+
+    const sourceCheckboxes = document.querySelectorAll("input[name='source']");
+    const metricsContainer = document.getElementById('metricsContainer');
+
+    sourceCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        metricsContainer.innerHTML = '';
+        sourceCheckboxes.forEach(box => {
+          if (box.checked) {
+            const metrics = metricMap[box.value];
+            if (metrics) {
+              metrics.forEach(metric => {
+                const id = `${box.value}_${metric}`.replace(/\s+/g, '_');
+                const el = `<input type='checkbox' name='metric' value='${id}' /> ${metric} (${box.value})<br/>`;
+                metricsContainer.innerHTML += el;
+              });
+            }
+          }
+        });
+      });
+    });
+
+    metricsContainer.addEventListener('change', () => {
+      const checkedMetrics = document.querySelectorAll("input[name='metric']:checked");
+      if (checkedMetrics.length > 0) {
+        document.getElementById('modeSection').style.display = 'block';
+        renderDummyChart(checkedMetrics);
+      } else {
+        document.getElementById('modeSection').style.display = 'none';
+      }
+    });
+
+    function renderDummyChart(checkedMetrics) {
+      const labels = Array.from({ length: 10 }, (_, i) => `T${i+1}`);
+      const datasets = Array.from(checkedMetrics).map(metric => ({
+        label: metric.value,
+        data: Array.from({ length: 10 }, () => Math.floor(Math.random() * 100)),
+        borderColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+        fill: false
+      }));
+
+      const ctx = document.getElementById('chartCanvas').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Dummy Anomaly/Forecast Graph'
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

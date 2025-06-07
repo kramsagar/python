@@ -1,0 +1,33 @@
+{
+    "version": "1.0.0",
+    "title": "Delay endpoint experiment",
+    "description": "Simulate a delay and check if service is still responsive.",
+    "steady-state-hypothesis": {
+      "title": "Service responds normally",
+      "probes": [
+        {
+          "type": "probe",
+          "name": "service-available",
+          "tolerance": 200,
+          "provider": {
+            "type": "http",
+            "url": "http://localhost:5000/",
+            "method": "GET"
+          }
+        }
+      ]
+    },
+    "method": [
+      {
+        "type": "action",
+        "name": "call-delay-endpoint",
+        "provider": {
+          "type": "http",
+          "url": "http://localhost:5000/delay",
+          "method": "GET"
+        }
+      }
+    ],
+    "rollbacks": []
+  }
+  

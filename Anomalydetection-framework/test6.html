@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anomaly and Forecasting Framework for TSDB</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      flex-wrap: wrap;
+    }
+    .sidebar, .metrics, .chart-section {
+      background: #fff;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    .sidebar {
+      width: 25%;
+    }
+    .metrics {
+      flex: 1;
+      min-width: 200px;
+    }
+    .chart-section {
+      flex: 2;
+      min-width: 300px;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .metric-group {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #bbb;
+    }
+    #customDateRange {
+      display: none;
+      margin-top: 10px;
+    }
+    h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+    }
+    label, input, select {
+      display: block;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    input[type="checkbox"], input[type="radio"] {
+      display: inline;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Analysis</h2>
+    <div class="section">
+      <label for="analysisType">Method:</label>
+      <select id="analysisType">
+        <option value="anomaly">Anomaly</option>
+        <option value="forecast">Forecast</option>
+      </select>
+    </div>
+    <div class="section">
+      <label for="appId">App ID:</label>
+      <input type="text" id="appId" />
+    </div>
+    <div class="section">
+      <label for="timeRange">Time Range:</label>
+      <select id="timeRange">
+        <option value="24hr">Last 24 Hours</option>
+        <option value="3days">Last 3 Days</option>
+        <option value="custom">Custom Range</option>
+      </select>
+      <div id="customDateRange">
+        <label for="startDate">From:</label>
+        <input type="text" id="startDate" />
+        <label for="endDate">To:</label>
+        <input type="text" id="endDate" />
+      </div>
+    </div>
+    <div class="section">
+      <label>Data Sources:</label>
+      <input type="checkbox" name="source" value="splunk" /> Splunk<br />
+      <input type="checkbox" name="source" value="appd" /> AppD<br />
+      <input type="checkbox" name="source" value="elastic" /> Elastic<br />
+      <input type="checkbox" name="source" value="prometheus" /> Prometheus<br />
+      <input type="checkbox" name="source" value="grafana" /> Grafana<br />
+      <input type="checkbox" name="source" value="autosys" /> Autosys<br />
+    </div>
+  </div>
+
+  <div class="metrics">
+    <h2>Metrics</h2>
+    <div id="metricsContainer"></div>
+  </div>
+
+  <div class="chart-section">
+    <h2 id="graphTitle">Graph</h2>
+    <div id="modeSection" class="section" style="display:none">
+      <label for="modeSelect">Select Mode:</label>
+      <select id="modeSelect">
+        <option value="model1">Model 1</option>
+        <option value="model2">Model 2</option>
+      </select>
+    </div>
+    <canvas id="chartCanvas" width="600" height="400"></canvas>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+    $(function() {
+      $("#startDate, #endDate").datepicker();
+    });
+
+    document.getElementById('timeRange').addEventListener('change', function() {
+      document.getElementById('customDateRange').style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+
+    const metricMap = {
+      splunk: ['Latency', 'Volume', 'Error Rate'],
+      appd: ['Latency', 'Volume', 'Error Rate'],
+      elastic: ['Latency', 'Volume', 'Error Rate'],
+      prometheus: ['CPU', 'Memory', 'Disk'],
+      autosys: [
+        'Unexpected Job Failures',
+        'Job Not Started on Schedule',
+        'Job Runs Longer Than Expected',
+        'Job Runs Too Quickly (skipped tasks)',
+        'Job Dependency Violations',
+        'High Frequency of Retries/Restarts',
+        'Resource Utilization Anomalies'
+      ]
+    };
+
+    const sourceCheckboxes = document.querySelectorAll("input[name='source']");
+    const metricsContainer = document.getElementById('metricsContainer');
+
+    sourceCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        metricsContainer.innerHTML = '';
+        sourceCheckboxes.forEach(box => {
+          if (box.checked) {
+            const metrics = metricMap[box.value];
+            if (metrics) {
+              metrics.forEach(metric => {
+                const id = `${box.value}_${metric}`.replace(/\s+/g, '_');
+                const groupHTML = ` 
+                  <div class="metric-group">
+                    <label><strong>Primary:</strong> <input type='radio' name='primary' value='${id}' data-label='${metric} (${box.value})' /> ${metric} (${box.value})</label><br/>
+                    <label><strong>Supporting:</strong> <input type='checkbox' name='supporting' value='${id}' /> Use as Supporting</label>
+                  </div>`;
+                metricsContainer.innerHTML += groupHTML;
+              });
+            }
+          }
+        });
+      });
+    });
+
+    metricsContainer.addEventListener('change', () => {
+      const primaryMetric = document.querySelector("input[name='primary']:checked");
+      if (primaryMetric) {
+        document.getElementById('modeSection').style.display = 'block';
+        renderDummyChart(primaryMetric);
+      } else {
+        document.getElementById('modeSection').style.display = 'none';
+      }
+    });
+
+    function renderDummyChart(primaryMetric) {
+      const labels = Array.from({ length: 10 }, (_, i) => `T${i+1}`);
+      const datasets = [
+        {
+          label: `Primary: ${primaryMetric.dataset.label}`,
+          data: Array.from({ length: 10 }, () => Math.floor(Math.random() * 100)),
+          borderColor: '#ff0000',
+          fill: false
+        }
+      ];
+
+      const ctx = document.getElementById('chartCanvas').getContext('2d');
+      if (window.currentChart) {
+        window.currentChart.destroy();
+      }
+
+      window.currentChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: `${primaryMetric.dataset.label} Graph`
+            }
+          }
+        }
+      });
+
+      document.getElementById('graphTitle').innerText = `${primaryMetric.dataset.label} Graph`;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+[ramsk@server codebase]$ cat webserver-setup.yaml
+---
+- name: install apache and expose website
+  hosts: local
+  tasks:
+  - name: install apache
+    yum:
+      name: httpd
+      state: present
+    become: yes
+
+  - name: copy index.html file
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+      mode: '777'
+    become: yes
+
+  - name: start httpd process
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    become: yes
+
+  - name: check process
+    shell: |
+      ps -ef | grep httpd
+      curl http://localhost:80/
+    register: shell_output
+
+  - name: show output
+    debug:
+      var: shell_output
+
+  - name: look at the curl url
+    uri:
+      url: http://localhost:80/
+      return_content: yes
+    register: url_op
+
+  - name: show url output
+    debug:
+      var: url_op.content
+
+
+
+[ramsk@server codebase]$ ansible-playbook -i hosts.ini webserver-setup.yaml --ask-become-pass
+BECOME password:
+
+PLAY [install apache and expose website] *****************************************************************************************
+
+TASK [Gathering Facts] ***********************************************************************************************************
+ok: [rkyasan44@192.168.1.9]
+ok: [ramsagar@192.168.1.7]
+
+TASK [install apache] ************************************************************************************************************
+ok: [rkyasan44@192.168.1.9]
+ok: [ramsagar@192.168.1.7]
+
+TASK [copy index.html file] ******************************************************************************************************
+changed: [rkyasan44@192.168.1.9]
+changed: [ramsagar@192.168.1.7]
+
+TASK [start httpd process] *******************************************************************************************************
+ok: [rkyasan44@192.168.1.9]
+ok: [ramsagar@192.168.1.7]
+
+TASK [check process] *************************************************************************************************************
+changed: [rkyasan44@192.168.1.9]
+changed: [ramsagar@192.168.1.7]
+
+TASK [show output] ***************************************************************************************************************
+ok: [ramsagar@192.168.1.7] => {
+    "shell_output": {
+        "changed": true,
+        "cmd": "ps -ef | grep httpd\ncurl http://localhost:80/\n",
+        "delta": "0:00:00.020305",
+        "end": "2025-06-07 15:52:58.074865",
+        "failed": false,
+        "msg": "",
+        "rc": 0,
+        "start": "2025-06-07 15:52:58.054560",
+        "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100    49  100    49    0     0  49000      0 --:--:-- --:--:-- --:--:-- 49000",
+        "stderr_lines": [
+            "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
+            "                                 Dload  Upload   Total   Spent    Left  Speed",
+            "",
+            "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
+            "100    49  100    49    0     0  49000      0 --:--:-- --:--:-- --:--:-- 49000"
+        ],
+        "stdout": "root       81406       1  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache     81407   81406  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache     81408   81406  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache     81409   81406  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache     81410   81406  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\nramsagar   83180   83179  0 15:52 pts/1    00:00:00 /bin/sh -c ps -ef | grep httpd curl http://localhost:80/ \nramsagar   83182   83180  0 15:52 pts/1    00:00:00 grep httpd\n<html>\n<h1> this is ram default page<h1>\n</html>",
+        "stdout_lines": [
+            "root       81406       1  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache     81407   81406  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache     81408   81406  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache     81409   81406  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache     81410   81406  0 15:48 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "ramsagar   83180   83179  0 15:52 pts/1    00:00:00 /bin/sh -c ps -ef | grep httpd curl http://localhost:80/ ",
+            "ramsagar   83182   83180  0 15:52 pts/1    00:00:00 grep httpd",
+            "<html>",
+            "<h1> this is ram default page<h1>",
+            "</html>"
+        ]
+    }
+}
+ok: [rkyasan44@192.168.1.9] => {
+    "shell_output": {
+        "changed": true,
+        "cmd": "ps -ef | grep httpd\ncurl http://localhost:80/\n",
+        "delta": "0:00:00.022571",
+        "end": "2025-06-07 15:52:57.984191",
+        "failed": false,
+        "msg": "",
+        "rc": 0,
+        "start": "2025-06-07 15:52:57.961620",
+        "stderr": "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current\n                                 Dload  Upload   Total   Spent    Left  Speed\n\r  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0\r100    49  100    49    0     0  49000      0 --:--:-- --:--:-- --:--:-- 49000",
+        "stderr_lines": [
+            "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
+            "                                 Dload  Upload   Total   Spent    Left  Speed",
+            "",
+            "  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0",
+            "100    49  100    49    0     0  49000      0 --:--:-- --:--:-- --:--:-- 49000"
+        ],
+        "stdout": "root       11818       1  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache     11819   11818  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache     11820   11818  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache     11821   11818  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\napache     11822   11818  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND\nrkyasan+   13770   13769  0 15:52 pts/2    00:00:00 /bin/sh -c ps -ef | grep httpd curl http://localhost:80/ \nrkyasan+   13772   13770  0 15:52 pts/2    00:00:00 grep httpd\n<html>\n<h1> this is ram default page<h1>\n</html>",
+        "stdout_lines": [
+            "root       11818       1  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache     11819   11818  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache     11820   11818  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache     11821   11818  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "apache     11822   11818  0 15:44 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND",
+            "rkyasan+   13770   13769  0 15:52 pts/2    00:00:00 /bin/sh -c ps -ef | grep httpd curl http://localhost:80/ ",
+            "rkyasan+   13772   13770  0 15:52 pts/2    00:00:00 grep httpd",
+            "<html>",
+            "<h1> this is ram default page<h1>",
+            "</html>"
+        ]
+    }
+}
+
+TASK [look at the curl url] ******************************************************************************************************
+ok: [rkyasan44@192.168.1.9]
+ok: [ramsagar@192.168.1.7]
+
+TASK [show url output] ***********************************************************************************************************
+ok: [ramsagar@192.168.1.7] => {
+    "url_op.content": "<html>\n<h1> this is ram default page<h1>\n</html>\n"
+}
+ok: [rkyasan44@192.168.1.9] => {
+    "url_op.content": "<html>\n<h1> this is ram default page<h1>\n</html>\n"
+}
+
+PLAY RECAP ***********************************************************************************************************************
+ramsagar@192.168.1.7       : ok=8    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+rkyasan44@192.168.1.9      : ok=8    changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0

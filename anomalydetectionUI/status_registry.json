@@ -1,0 +1,26 @@
+{
+  "1LPP_splunk_f1_volume": {
+    "detector_id": "1LPP_splunk_f1_volume",
+    "last_run_time": "2025-05-12T13:31:53.168815+00:00",
+    "next_run_time": "2025-05-13T13:32:00.596492+00:00",
+    "status": "success"
+  },
+  "1LPP_splunk_app1_latency": {
+    "detector_id": "1LPP_splunk_app1_latency",
+    "last_run_time": "2025-05-12T13:31:53.165665+00:00",
+    "next_run_time": "2025-05-13T13:32:01.205807+00:00",
+    "status": "success"
+  },
+  "1LPP_splunk_f1_error": {
+    "detector_id": "1LPP_splunk_f1_error",
+    "last_run_time": "2025-05-12T13:31:53.175726+00:00",
+    "next_run_time": "2025-05-13T13:32:00.609307+00:00",
+    "status": "success"
+  },
+  "1LPP_splunk_app1_latency_1day": {
+    "detector_id": "1LPP_splunk_app1_latency_1day",
+    "last_run_time": "2025-05-12T13:31:53.167011+00:00",
+    "next_run_time": "2025-05-13T13:32:00.628444+00:00",
+    "status": "success"
+  }
+}

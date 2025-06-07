@@ -1,0 +1,90 @@
+{
+  "1LPP_splunk_app1_latency": {
+    "timestamp": "2025-05-11T12:26:44.600012-04:00",
+    "trainAppId": "1LPP",
+    "trainDetectorId": "1LPP_splunk_app1_latency",
+    "data": {
+      "trainAnalysisType": "anomaly",
+      "trainAppId": "1LPP",
+      "trainDetectorId": "1LPP_splunk_app1_latency",
+      "trainSource": [
+        "splunk"
+      ],
+      "trainSplunkQuery": "(index=summary_transactions index_source_appid=cfs_app_ms1_app1) | table _time, avg_response_time",
+      "trainPrometheusEndpoint": "",
+      "trainAppdApiEndpoint": "",
+      "trainAutosysApiEndpoint": "",
+      "trainElasticApiEndpoint": "",
+      "trainDuration": "30days",
+      "trainInterval": "1day",
+      "trainPrimary": "train_splunk_Latency",
+      "trainSupporting": []
+    }
+  },
+  "1LPP_splunk_app1_latency_1day": {
+    "timestamp": "2025-05-11T12:41:13.800979-04:00",
+    "trainAppId": "1LPP",
+    "trainDetectorId": "1LPP_splunk_app1_latency_1day",
+    "data": {
+      "trainAnalysisType": "anomaly",
+      "trainAppId": "1LPP",
+      "trainDetectorId": "1LPP_splunk_app1_latency_1day",
+      "trainSource": [
+        "splunk"
+      ],
+      "trainSplunkQuery": "(index=summary_transactions index_source_appid=cfs_app_ms1_app1) | table _time, avg_response_time",
+      "trainPrometheusEndpoint": "",
+      "trainAppdApiEndpoint": "",
+      "trainAutosysApiEndpoint": "",
+      "trainElasticApiEndpoint": "",
+      "trainDuration": "30days",
+      "trainInterval": "1day",
+      "trainPrimary": "train_splunk_Latency",
+      "trainSupporting": []
+    }
+  },
+  "1LPP_splunk_f1_volume": {
+    "timestamp": "2025-05-11T22:46:03.918096-04:00",
+    "trainAppId": "1LPP",
+    "trainDetectorId": "1LPP_splunk_f1_volume",
+    "data": {
+      "trainAnalysisType": "anomaly",
+      "trainAppId": "1LPP",
+      "trainDetectorId": "1LPP_splunk_f1_volume",
+      "trainSource": [
+        "splunk"
+      ],
+      "trainSplunkQuery": "(index=summary_transactions index_source_appid=cfs_app_ms1_app1) | table _time, txn_count",
+      "trainPrometheusEndpoint": "",
+      "trainAppdApiEndpoint": "",
+      "trainAutosysApiEndpoint": "",
+      "trainElasticApiEndpoint": "",
+      "trainDuration": "30days",
+      "trainInterval": "1day",
+      "trainSupporting": [],
+      "trainPrimary": "train_splunk_Volume"
+    }
+  },
+  "1LPP_splunk_f1_error": {
+    "timestamp": "2025-05-11T22:46:38.498489-04:00",
+    "trainAppId": "1LPP",
+    "trainDetectorId": "1LPP_splunk_f1_error",
+    "data": {
+      "trainAnalysisType": "anomaly",
+      "trainAppId": "1LPP",
+      "trainDetectorId": "1LPP_splunk_f1_error",
+      "trainSource": [
+        "splunk"
+      ],
+      "trainSplunkQuery": "(index=summary_transactions index_source_appid=cfs_app_ms1_app1) | table _time, failure_rate",
+      "trainPrometheusEndpoint": "",
+      "trainAppdApiEndpoint": "",
+      "trainAutosysApiEndpoint": "",
+      "trainElasticApiEndpoint": "",
+      "trainDuration": "30days",
+      "trainInterval": "1day",
+      "trainSupporting": [],
+      "trainPrimary": "train_splunk_Error_Rate"
+    }
+  }
+}

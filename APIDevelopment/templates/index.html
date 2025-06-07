@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prometheus Metrics Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Prometheus Metrics Viewer</h1>
+
+    <label>Select a Metric:</label>
+    <select id="metricSelect">
+        {% for metric in metrics %}
+            <option value="{{ metric }}">{{ metric }}</option>
+        {% endfor %}
+    </select>
+
+    <button onclick="loadData()">Load Graph</button>
+
+    <canvas id="metricChart" width="800" height="400"></canvas>
+
+    <script>
+        let chart;
+
+        function loadData() {
+            const metric = document.getElementById('metricSelect').value;
+
+            fetch('/query', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({metric: metric})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                const ctx = document.getElementById('metricChart').getContext('2d');
+
+                if (chart) chart.destroy(); // destroy old chart if exists
+
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.timestamps,
+                        datasets: [{
+                            label: metric,
+                            data: data.metrics,
+                            borderColor: 'blue',
+                            backgroundColor: 'lightblue',
+                            fill: false,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { display: true, title: { display: true, text: 'Time' }},
+                            y: { display: true, title: { display: true, text: 'Value' }}
+                        }
+                    }
+                });
+            })
+            .catch(error => alert("Error: " + error));
+        }
+    </script>
+</body>
+</html>
+

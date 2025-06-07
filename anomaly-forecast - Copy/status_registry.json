@@ -1,0 +1,86 @@
+{
+  "1LOS_App1_Latency_Anomaly": {
+    "detector_id": "1LOS_App1_Latency_Anomaly",
+    "last_run_time": "2025-05-10T16:04:36.322604+00:00",
+    "next_run_time": "2025-05-10T16:05:43.006380+00:00",
+    "status": "success"
+  },
+  "1MOS_App1_Latency_Anomaly": {
+    "detector_id": "1MOS_App1_Latency_Anomaly",
+    "last_run_time": "2025-05-10T16:04:36.325439+00:00",
+    "next_run_time": "2025-05-10T16:05:43.004241+00:00",
+    "status": "success"
+  },
+  "1LLS_splunk_app1_txn": {
+    "detector_id": "1LLS_splunk_app1_txn",
+    "last_run_time": "2025-05-10T16:04:36.851031+00:00",
+    "next_run_time": "2025-05-10T16:05:43.285664+00:00",
+    "status": "success"
+  },
+  "1LLS_splunk_app1_errorrate": {
+    "detector_id": "1LLS_splunk_app1_errorrate",
+    "last_run_time": "2025-05-10T16:04:35.471478+00:00",
+    "next_run_time": "2025-05-10T16:05:41.892015+00:00",
+    "status": "success"
+  },
+  "1LLS_splunk_app1_new_latency": {
+    "detector_id": "1LLS_splunk_app1_new_latency",
+    "last_run_time": "2025-05-10T16:04:36.613834+00:00",
+    "next_run_time": "2025-05-10T16:05:43.029079+00:00",
+    "status": "success"
+  },
+  "1LPP_splunk_app1_new_latency": {
+    "detector_id": "1LPP_splunk_app1_new_latency",
+    "last_run_time": "2025-05-10T16:04:38.038527+00:00",
+    "next_run_time": "2025-05-10T16:05:45.019979+00:00",
+    "status": "success"
+  },
+  "1MPP_splunk_app1_new_latency": {
+    "detector_id": "1MPP_splunk_app1_new_latency",
+    "last_run_time": "2025-05-10T16:04:38.147486+00:00",
+    "next_run_time": "2025-05-10T16:05:45.012760+00:00",
+    "status": "success"
+  },
+  "1MSMS_splunk_app1_error1": {
+    "detector_id": "1MSMS_splunk_app1_error1",
+    "last_run_time": "2025-05-10T16:04:38.013701+00:00",
+    "next_run_time": "2025-05-10T16:05:45.014961+00:00",
+    "status": "success"
+  },
+  "1LPLP_splunk_app1_error1": {
+    "detector_id": "1LPLP_splunk_app1_error1",
+    "last_run_time": "2025-05-10T16:04:35.470080+00:00",
+    "next_run_time": "2025-05-10T16:05:41.897697+00:00",
+    "status": "success"
+  },
+  "1LPLP_splunk_app1_error": {
+    "detector_id": "1LPLP_splunk_app1_error",
+    "last_run_time": "2025-05-10T16:04:36.981841+00:00",
+    "next_run_time": "2025-05-10T16:05:43.582273+00:00",
+    "status": "success"
+  },
+  "1LPS_splunk_app1_error1": {
+    "detector_id": "1LPS_splunk_app1_error1",
+    "last_run_time": "2025-05-10T16:04:36.325367+00:00",
+    "next_run_time": "2025-05-10T16:05:43.004406+00:00",
+    "status": "success"
+  },
+  "1LPS_splunk_app1_error2": {
+    "detector_id": "1LPS_splunk_app1_error2",
+    "last_run_time": "2025-05-10T16:04:36.325196+00:00",
+    "next_run_time": "2025-05-10T16:05:43.006122+00:00",
+    "status": "success"
+  },
+  "1KSS_splunk_app1_error1": {
+    "detector_id": "1KSS_splunk_app1_error1",
+    "last_run_time": "2025-05-10T16:05:04.346104+00:00",
+    "next_run_time": "2025-05-10T16:06:10.748404+00:00",
+    "status": "success"
+  },
+  "1KSS_splunk_app1_error2": {
+    "detector_id": "1KSS_splunk_app1_error2",
+    "last_run_time": "2025-05-10T16:04:19.341973+00:00",
+    "next_run_time": "2025-05-10T16:05:25.689642+00:00",
+    "status": "success"
+  }
+}

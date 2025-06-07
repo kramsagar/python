@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anomaly and Forecasting Framework for TSDB</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      margin: 20px;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+    .left-panel, .middle-panel, .right-panel {
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .left-panel, .middle-panel {
+      width: 20%;
+    }
+    .right-panel {
+      flex: 1;
+    }
+    select, input[type="text"], input[type="datetime-local"] {
+      width: 100%;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Anomaly and Forecasting Framework for TSDB</h1>
+  <div class="container">
+    <div class="left-panel">
+      <h3>Analysis</h3>
+      <label for="analysis-type">Select Method:</label>
+      <select id="analysis-type">
+        <option value="anomaly">Anomaly</option>
+        <option value="forecast">Forecast</option>
+      </select>
+
+      <label for="appid">App ID:</label>
+      <input type="text" id="appid" placeholder="Enter App ID">
+
+      <label>Time Range:</label>
+      <input type="datetime-local" id="start-time">
+      <input type="datetime-local" id="end-time">
+
+      <h3>Data Sources</h3>
+      <div id="data-sources">
+        <label><input type="checkbox" value="splunk"> Splunk</label><br>
+        <label><input type="checkbox" value="appd"> AppDynamics</label><br>
+        <label><input type="checkbox" value="elastic"> Elastic</label><br>
+        <label><input type="checkbox" value="prometheus"> Prometheus</label><br>
+        <label><input type="checkbox" value="grafana"> Grafana</label><br>
+        <label><input type="checkbox" value="autosys"> Autosys</label><br>
+      </div>
+    </div>
+
+    <div class="middle-panel">
+      <h3>Metrics</h3>
+      <div id="metrics"></div>
+    </div>
+
+    <div class="right-panel">
+      <h3>Graph Output</h3>
+      <canvas id="result-chart" width="600" height="400"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const metrics = {
+      splunk: ['Latency', 'Volume', 'Error Rate'],
+      appd: ['Latency', 'Volume', 'Error Rate'],
+      elastic: ['Latency', 'Volume', 'Error Rate'],
+      prometheus: ['CPU', 'Memory', 'Disk'],
+      autosys: [
+        'Unexpected Job Failures',
+        'Job Not Started on Schedule',
+        'Job Runs Longer Than Expected',
+        'Job Runs Too Quickly (skipped tasks)',
+        'Job Dependency Violations',
+        'High Frequency of Retries/Restarts',
+        'Resource Utilization Anomalies (CPU, Memory spikes)'
+      ],
+      grafana: ['Latency', 'Volume', 'Error Rate']
+    };
+
+    const dataSourcesDiv = document.getElementById('data-sources');
+    const metricsDiv = document.getElementById('metrics');
+
+    dataSourcesDiv.addEventListener('change', () => {
+      metricsDiv.innerHTML = '';
+      const checkedSources = Array.from(dataSourcesDiv.querySelectorAll('input:checked')).map(input => input.value);
+
+      checkedSources.forEach(source => {
+        const metricList = metrics[source] || [];
+        const section = document.createElement('div');
+        section.innerHTML = `<strong>${source.toUpperCase()}</strong><br>`;
+        metricList.forEach(metric => {
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = metric;
+          section.appendChild(checkbox);
+          section.appendChild(document.createTextNode(' ' + metric));
+          section.appendChild(document.createElement('br'));
+        });
+        metricsDiv.appendChild(section);
+      });
+    });
+  </script>
+</body>
+</html>

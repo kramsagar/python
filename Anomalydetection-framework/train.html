@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anomaly & Forecasting Framework</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(120deg, #e0f7fa, #f1f8ff);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      padding: 40px;
+      max-width: 100%;
+      margin: auto;
+    }
+
+    .header {
+      background: linear-gradient(90deg, #1e3c72, #2a5298);
+      color: white;
+      padding: 30px 40px;
+      font-size: 34px;
+      font-weight: 600;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      margin-bottom: 40px;
+    }
+
+    .sections-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 30px;
+      justify-items: center;
+      margin-top: 20px;
+    }
+
+    .section {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .section:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .section h2 {
+      font-size: 22px;
+      border-bottom: 2px solid #1976d2;
+      padding-bottom: 8px;
+      margin-bottom: 25px;
+      color: #1a237e;
+    }
+
+    label {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    input[type="text"],
+    select,
+    .date-picker {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #cfd8dc;
+      margin-bottom: 18px;
+      font-size: 16px;
+      background: #f9f9f9;
+      transition: border 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    select:focus,
+    .date-picker:focus {
+      border-color: #1976d2;
+      outline: none;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      margin-right: 8px;
+    }
+
+    .metric-group {
+      padding: 10px;
+      background: #f0f7ff;
+      border-radius: 10px;
+      border: 1px dashed #90caf9;
+      margin-bottom: 10px;
+    }
+
+    #customDateRange {
+      display: none;
+    }
+
+    canvas {
+      background: #ffffff;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .modelName {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a237e;
+      margin-top: 20px;
+    }
+
+    @media screen and (max-width: 900px) {
+      .sections-container {
+        grid-template-columns: 1fr; /* Stack panels on small screens */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">✨ Anomaly & Forecasting Framework for TSDB</div>
+
+    <div class="sections-container">
+      <!-- Analysis Section -->
+      <div class="section">
+        <h2>Analysis</h2>
+        <label for="analysisType">Method:</label>
+        <select id="analysisType">
+          <option value="anomaly">Anomaly</option>
+          <option value="forecast">Forecast</option>
+        </select>
+
+        <label for="appId">App ID:</label>
+        <input type="text" id="appId" />
+
+        <label for="timeRange">Time Range:</label>
+        <select id="timeRange">
+          <option value="24hr">Last 24 Hours</option>
+          <option value="3days">Last 3 Days</option>
+          <option value="custom">Custom Range</option>
+        </select>
+
+        <div id="customDateRange">
+          <label for="startDate">From:</label>
+          <input type="text" id="startDate" class="date-picker" />
+          <label for="endDate">To:</label>
+          <input type="text" id="endDate" class="date-picker" />
+        </div>
+
+        <label>Data Sources:</label>
+        <div>
+          <input type="checkbox" name="source" value="splunk" /> Splunk
+          <input type="checkbox" name="source" value="appd" /> AppD
+          <input type="checkbox" name="source" value="elastic" /> Elastic
+          <input type="checkbox" name="source" value="prometheus" /> Prometheus
+          <input type="checkbox" name="source" value="autosys" /> Autosys
+        </div>
+      </div>
+
+      <!-- Data Feed Section -->
+      <div class="section" id="dataFeedSection">
+        <h2>Data Feed</h2>
+
+        <label for="splunkQuery">Splunk Query:</label>
+        <textarea id="splunkQuery" rows="4" placeholder="Enter your Splunk query here..."></textarea>
+
+        <label for="prometheusEndpoint">Prometheus API Metric Endpoint:</label>
+        <input type="text" id="prometheusEndpoint" placeholder="Enter Prometheus API Metric Endpoint"/>
+
+        <label for="appdApiEndpoint">AppD API Metric Endpoint:</label>
+        <input type="text" id="appdApiEndpoint" placeholder="Enter AppD API Metric Endpoint"/>
+
+        <label for="autosysApiEndpoint">Autosys API Metric Endpoint:</label>
+        <input type="text" id="autosysApiEndpoint" placeholder="Enter Autosys API Metric Endpoint"/>
+
+        <label for="elasticApiEndpoint">Elastic API Metric Endpoint:</label>
+        <input type="text" id="elasticApiEndpoint" placeholder="Enter Elastic API Metric Endpoint"/>
+
+        <label for="duration">Duration (How much data to fetch):</label>
+        <select id="duration">
+          <option value="30days">Last 30 Days</option>
+          <option value="6months">Last 6 Months</option>
+        </select>
+
+        <label for="interval">Interval (Model Run Frequency):</label>
+        <select id="interval">
+          <option value="1hr">Every 1 Hour</option>
+          <option value="30min">Every 30 Minutes</option>
+          <option value="1day">Every 1 Day</option>
+        </select>
+
+        <button id="trainButton" style="margin-top: 20px; padding: 10px 20px; background-color: #1976d2; color: white; border: none; border-radius: 5px; cursor: pointer;">
+          Train Model
+        </button>
+      </div>
+
+      <!-- Metrics Section -->
+      <div class="section">
+        <h2>Metrics</h2>
+        <div id="metricsContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+    $(function () {
+      $("#startDate, #endDate").datepicker({
+        dateFormat: "yy-mm-dd",
+        onSelect: function () {
+          const date = $(this).val();
+          const currentTime = new Date().toLocaleTimeString();
+          $(this).val(date + ' ' + currentTime);
+        }
+      });
+
+      // Toggle metrics visibility based on selected data sources
+      $('input[type="checkbox"]').on('change', function () {
+        const selectedSources = $('input[type="checkbox"]:checked').map(function () {
+          return $(this).val();
+        }).get();
+
+        const metricsContainer = $('#metricsContainer');
+        metricsContainer.empty(); // Clear existing metrics
+
+        selectedSources.forEach((source) => {
+          switch (source) {
+            case 'splunk':
+              metricsContainer.append(`
+                <div class="metric-group">
+                  <label><strong>Primary:</strong> Latency (splunk)</label>
+                  <input type="radio" name="splunkPrimaryMetric" value="latency" /> Latency
+                  <input type="radio" name="splunkPrimaryMetric" value="volume" /> Volume
+                  <input type="radio" name="splunkPrimaryMetric" value="errorRate" /> Error Rate
+                  <label><strong>Supporting:</strong> Latency (splunk)</label>
+                  <input type="checkbox" name="splunkSupportingMetric" value="latency" /> Latency
+                  <label><strong>Supporting:</strong> Volume (splunk)</label>
+                  <input type="checkbox" name="splunkSupportingMetric" value="volume" /> Volume
+                  <label><strong>Supporting:</strong> Error Rate (splunk)</label>
+                  <input type="checkbox" name="splunkSupportingMetric" value="errorRate" /> Error Rate
+                </div>
+              `);
+              break;
+
+            case 'appd':
+              metricsContainer.append(`
+                <div class="metric-group">
+                  <label><strong>Primary:</strong> Latency (appd)</label>
+                  <input type="radio" name="appdPrimaryMetric" value="latency" /> Latency
+                  <input type="radio" name="appdPrimaryMetric" value="volume" /> Volume
+                  <input type="radio" name="appdPrimaryMetric" value="errorRate" /> Error Rate
+                  <label><strong>Supporting:</strong> Latency (appd)</label>
+                  <input type="checkbox" name="appdSupportingMetric" value="latency" /> Latency
+                  <label><strong>Supporting:</strong> Volume (appd)</label>
+                  <input type="checkbox" name="appdSupportingMetric" value="volume" /> Volume
+                  <label><strong>Supporting:</strong> Error Rate (appd)</label>
+                  <input type="checkbox" name="appdSupportingMetric" value="errorRate" /> Error Rate
+                </div>
+              `);
+              break;
+            case 'elastic':
+              metricsContainer.append(`
+                <div class="metric-group">
+                  <label><strong>Primary:</strong> Latency (elastic)</label>
+                  <input type="radio" name="elasticPrimaryMetric" value="latency" /> Latency
+                  <input type="radio" name="elasticPrimaryMetric" value="volume" /> Volume
+                  <input type="radio" name="elasticPrimaryMetric" value="errorRate" /> Error Rate
+                  <label><strong>Supporting:</strong> Latency (elastic)</label>
+                  <input type="checkbox" name="elasticSupportingMetric" value="latency" /> Latency
+                  <label><strong>Supporting:</strong> Volume (elastic)</label>
+                  <input type="checkbox" name="elasticSupportingMetric" value="volume" /> Volume
+                  <label><strong>Supporting:</strong> Error Rate (elastic)</label>
+                  <input type="checkbox" name="elasticSupportingMetric" value="errorRate" /> Error Rate
+                </div>
+              `);
+              break;
+            case 'prometheus':
+              metricsContainer.append(`
+                <div class="metric-group">
+                  <label><strong>Primary:</strong> CPU (prometheus)</label>
+                  <input type="radio" name="prometheusPrimaryMetric" value="cpu" /> CPU
+                  <input type="radio" name="prometheusPrimaryMetric" value="memory" /> Memory
+                  <input type="radio" name="prometheusPrimaryMetric" value="disk" /> Disk
+                  <label><strong>Supporting:</strong> CPU (prometheus)</label>
+                  <input type="checkbox" name="prometheusSupportingMetric" value="cpu" /> CPU
+                  <label><strong>Supporting:</strong> Memory (prometheus)</label>
+                  <input type="checkbox" name="prometheusSupportingMetric" value="memory" /> Memory
+                  <label><strong>Supporting:</strong> Disk (prometheus)</label>
+                  <input type="checkbox" name="prometheusSupportingMetric" value="disk" /> Disk
+                </div>
+              `);
+              break;
+            case 'autosys':
+              metricsContainer.append(`
+                <div class="metric-group">
+                  <label><strong>Primary:</strong> Job Failures (autosys)</label>
+                  <input type="radio" name="autosysPrimaryMetric" value="jobFailures" /> Job Failures
+                  <input type="radio" name="autosysPrimaryMetric" value="jobRuns" /> Job Runs
+                  <label><strong>Supporting:</strong> Job Failures (autosys)</label>
+                  <input type="checkbox" name="autosysSupportingMetric" value="jobFailures" /> Job Failures
+                  <label><strong>Supporting:</strong> Job Runs (autosys)</label>
+                  <input type="checkbox" name="autosysSupportingMetric" value="jobRuns" /> Job Runs
+                </div>
+              `);
+              break;
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

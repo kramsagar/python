@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auto Finance Pricing Insights</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="bg-white text-gray-800 font-sans min-h-screen p-6">
+
+  <!-- Header -->
+  <header class="text-center mb-10">
+    <h1 class="text-3xl font-bold text-blue-800 flex justify-center items-center gap-3">
+      <i class="fa-solid fa-car text-blue-700"></i>
+      Auto Finance Market Pricing Insights
+    </h1>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- Input Section -->
+    <section class="bg-white border rounded-2xl shadow-lg p-6 space-y-6">
+      <h2 class="text-xl font-semibold text-blue-700">Market Factors</h2>
+
+      <div class="border-b pb-4">
+        <label class="block text-blue-700 font-medium mb-2">Analysis Type</label>
+        <select class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+          <option>Price Trend</option>
+          <option>Forecast</option>
+          <option>Anomaly Detection</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-blue-700 font-medium mb-2">Data Source</label>
+        <input type="text" value="Simulated FRED Used Car Price Index" readonly class="w-full mb-2 px-4 py-2 border rounded bg-gray-100" />
+        <input type="text" value="Monthly data from 2022 to 2024" readonly class="w-full mb-3 px-4 py-2 border rounded bg-gray-100" />
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded" onclick="renderChart()">
+          Load Data
+        </button>
+      </div>
+    </section>
+
+    <!-- Settings Section -->
+    <section class="bg-white border rounded-2xl shadow-lg p-6 space-y-4">
+      <h2 class="text-xl font-semibold text-blue-700">Analysis Options</h2>
+
+      <label class="block text-blue-700 font-medium">Select Metric</label>
+      <select class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <option>Used Car Price Index</option>
+        <option>Auto Loan Interest Rate</option>
+        <option>Loan Default Rate</option>
+      </select>
+
+      <label class="block text-blue-700 font-medium mt-4">Time Horizon</label>
+      <input type="number" min="1" value="12" placeholder="e.g. 12 months" class="w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"/>
+
+      <label class="block text-blue-700 font-medium mt-4">Other Filters</label>
+      <textarea rows="3" placeholder="e.g. Region: US, Vehicle Type: Sedan" class="w-full border rounded px-4 py-2 focus:ring-2 focus:ring-blue-300"></textarea>
+    </section>
+
+    <!-- Output Section -->
+    <section class="bg-white border rounded-2xl shadow-lg p-6 space-y-4">
+      <h2 class="text-xl font-semibold text-blue-700">Trend Output</h2>
+      <canvas id="chartCanvas" class="w-full h-64"></canvas>
+
+      <div class="space-y-2">
+        <label class="block text-blue-700 font-medium">Summary</label>
+        <textarea readonly class="w-full border rounded px-4 py-2 bg-gray-50 text-gray-700">This chart visualizes monthly used car price trends based on public indexes. Ideal for tracking inflation, auto financing risk, and forecasting retail values.</textarea>
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded" onclick="renderChart()">
+          Refresh
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Chart Script -->
+  <script>
+    let chart;
+
+    function renderChart() {
+      const labels = [
+        "2022-01", "2022-02", "2022-03", "2022-04", "2022-05", "2022-06",
+        "2022-07", "2022-08", "2022-09", "2022-10", "2022-11", "2022-12",
+        "2023-01", "2023-02", "2023-03", "2023-04", "2023-05", "2023-06",
+        "2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12",
+        "2024-01", "2024-02", "2024-03", "2024-04"
+      ];
+
+      const prices = [
+        145.3, 146.1, 144.7, 142.5, 141.0, 140.3,
+        138.5, 139.2, 140.8, 141.5, 143.0, 144.8,
+        146.2, 147.3, 148.9, 150.1, 151.2, 152.5,
+        153.0, 154.1, 153.7, 152.8, 151.9, 150.5,
+        149.3, 148.2, 147.0, 146.5
+      ];
+
+      const ctx = document.getElementById("chartCanvas").getContext("2d");
+
+      if (chart) chart.destroy(); // Clear previous chart
+
+      chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Used Car Price Index (Base 100)",
+            data: prices,
+            borderColor: "rgb(59, 130, 246)",
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true },
+            tooltip: { mode: "index", intersect: false }
+          },
+          scales: {
+            x: { display: true, title: { display: true, text: "Month" } },
+            y: { display: true, title: { display: true, text: "Index Value" } }
+          }
+        }
+      });
+    }
+
+    // Initial load
+    window.onload = renderChart;
+  </script>
+</body>
+</html>

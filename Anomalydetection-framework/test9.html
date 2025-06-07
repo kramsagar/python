@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anomaly and Forecasting Framework for TSDB</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      padding: 30px;
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header Styling */
+    .header {
+      background: linear-gradient(135deg, #007bff, #00b4ff);
+      color: white;
+      padding: 25px 40px;
+      font-size: 32px;
+      font-weight: 700;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .header i {
+      margin-left: 15px;
+      color: #28a745;
+      font-size: 24px;
+    }
+
+    /* Sections Container */
+    .sections-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 25px;
+    }
+
+    /* Section Styling */
+    .section {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      width: 32%;
+      border: 1px solid #e3e8f0;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .section h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 3px solid #007bff;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+
+    .section label {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .section input[type="text"],
+    .section select,
+    .section input[type="checkbox"] {
+      width: 100%;
+      padding: 8px 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      background: #fafafa;
+      transition: border-color 0.3s ease;
+    }
+    .section input[type="text"]:focus,
+    .section select:focus,
+    .section input[type="checkbox"]:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+    .section input[type="checkbox"] {
+      display: inline-block;
+      width: auto;
+    }
+
+    .date-picker {
+      width: 100%;
+      padding: 8px 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #fafafa;
+      font-size: 16px;
+    }
+
+    #customDateRange {
+      display: none;
+      margin-top: 20px;
+    }
+
+    /* Responsive design */
+    @media screen and (max-width: 768px) {
+      .sections-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+      .section {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      Anomaly and Forecasting Framework for TSDB
+      <i class="fas fa-check-circle"></i>
+    </div>
+
+    <!-- Sections Container -->
+    <div class="sections-container">
+      <!-- Analysis Section -->
+      <div class="section">
+        <h2>Analysis</h2>
+        <div>
+          <label for="analysisType">Method:</label>
+          <select id="analysisType">
+            <option value="anomaly">Anomaly</option>
+            <option value="forecast">Forecast</option>
+          </select>
+        </div>
+        <div>
+          <label for="appId">App ID:</label>
+          <input type="text" id="appId" />
+        </div>
+        <div>
+          <label for="timeRange">Time Range:</label>
+          <select id="timeRange">
+            <option value="24hr">Last 24 Hours</option>
+            <option value="3days">Last 3 Days</option>
+            <option value="custom">Custom Range</option>
+          </select>
+          <div id="customDateRange">
+            <label for="startDate">From:</label>
+            <input type="text" id="startDate" class="date-picker" />
+            <label for="endDate">To:</label>
+            <input type="text" id="endDate" class="date-picker" />
+          </div>
+        </div>
+        <div>
+          <label>Data Sources:</label>
+          <input type="checkbox" name="source" value="splunk" /> Splunk<br />
+          <input type="checkbox" name="source" value="appd" /> AppD<br />
+          <input type="checkbox" name="source" value="elastic" /> Elastic<br />
+          <input type="checkbox" name="source" value="prometheus" /> Prometheus<br />
+          <input type="checkbox" name="source" value="grafana" /> Grafana<br />
+          <input type="checkbox" name="source" value="autosys" /> Autosys<br />
+        </div>
+      </div>
+
+      <!-- Metrics Section -->
+      <div class="section">
+        <h2>Metrics</h2>
+        <div id="metricsContainer"></div>
+      </div>
+
+      <!-- Model Section -->
+      <div class="section">
+        <h2>Model</h2>
+        <div id="modeSection" style="display: none">
+          <label for="modeSelect">Select Mode:</label>
+          <select id="modeSelect">
+            <option value="model1">Model 1</option>
+            <option value="model2">Model 2</option>
+          </select>
+        </div>
+        <canvas id="chartCanvas" width="600" height="400"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+    $(function() {
+      // Initialize date pickers for start and end date inputs
+      $("#startDate, #endDate").datepicker({
+        dateFormat: "yy-mm-dd",
+        timeFormat: "HH:mm:ss", // Time picker format
+        onSelect: function() {
+          // Automatically update date & time in real-time when user selects a date
+          let date = $(this).val();
+          let currentTime = new Date().toLocaleTimeString();
+          $(this).val(date + ' ' + currentTime);
+        }
+      });
+    });
+
+    document.getElementById('timeRange').addEventListener('change', function() {
+      document.getElementById('customDateRange').style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+
+    const metricMap = {
+      splunk: ['Latency', 'Volume', 'Error Rate'],
+      appd: ['Latency', 'Volume', 'Error Rate'],
+      elastic: ['Latency', 'Volume', 'Error Rate'],
+      prometheus: ['CPU', 'Memory', 'Disk'],
+      autosys: [
+        'Unexpected Job Failures',
+        'Job Not Started on Schedule',
+        'Job Runs Longer Than Expected',
+        'Job Runs Too Quickly (skipped tasks)',
+        'Job Dependency Violations',
+        'High Frequency of Retries/Restarts',
+        'Resource Utilization Anomalies'
+      ]
+    };
+
+    const sourceCheckboxes = document.querySelectorAll("input[name='source']");
+    const metricsContainer = document.getElementById('metricsContainer');
+
+    sourceCheckboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        metricsContainer.innerHTML = '';
+        sourceCheckboxes.forEach(box => {
+          if (box.checked) {
+            const metrics = metricMap[box.value];
+            if (metrics) {
+              metrics.forEach(metric => {
+                const id = `${box.value}_${metric}`.replace(/\s+/g, '_');
+                const groupHTML = ` 
+                  <div class="metric-group">
+                    <label><strong>Primary:</strong> <input type='radio' name='primary' value='${id}' data-label='${metric} (${box.value})' /> ${metric} (${box.value})</label><br/>
+                    <label><strong>Supporting:</strong> <input type='checkbox' name='supporting' value='${id}' /> Use as Supporting</label>
+                  </div>`;
+                metricsContainer.innerHTML += groupHTML;
+              });
+            }
+          }
+        });
+      });
+    });
+
+    metricsContainer.addEventListener('change', () => {
+      const primaryMetric = document.querySelector("input[name='primary']:checked");
+      if (primaryMetric) {
+        document.getElementById('modeSection').style.display = 'block';
+        renderDummyChart(primaryMetric);
+      } else {
+        document.getElementById('modeSection').style.display = 'none';
+      }
+    });
+
+    function renderDummyChart(primaryMetric) {
+      const labels = Array.from({ length: 10 }, (_, i) => `T${i+1}`);
+      const datasets = [
+        {
+          label: `Primary: ${primaryMetric.dataset.label}`,
+          data: Array.from({ length: 10 }, () => Math.floor(Math.random() * 100)),
+          borderColor: '#ff0000',
+          fill: false
+        }
+      ];
+
+      const ctx = document.getElementById('chartCanvas').getContext('2d');
+      if (window.currentChart) {
+        window.currentChart.destroy();
+      }
+
+      window.currentChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: `${primaryMetric.dataset.label} Graph`
+            }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
